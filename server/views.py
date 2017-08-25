@@ -73,4 +73,4 @@ api.add_resource(DanmuByID, '/danmu/id/<id>')
 api.add_resource(BasicDanmu, '/danmu/basic/<filename>')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=app.config['DEBUG'])
