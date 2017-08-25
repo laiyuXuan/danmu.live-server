@@ -4,8 +4,8 @@ import uuid
 from flask_cors import CORS
 from flask_restful import Resource, Api
 
-from server import matcher, bilibili, const, redis, app
-from server.utils import files
+from livedotdanmu import matcher, bilibili, const, redis, app
+from livedotdanmu.utils import files
 
 api = Api(app)
 CORS(app, supports_credentials=True)

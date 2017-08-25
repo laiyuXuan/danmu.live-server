@@ -3,8 +3,8 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from server import const
-from server.model.play import Play
+from livedotdanmu import const
+from livedotdanmu.model.play import Play
 
 URLS = {
     'GET_DANMU_ID': 'https://bullet.video.qq.com/fcgi-bin/target/regist?otype=json&cid={0}&lid=&g_tk=&vid={1}',

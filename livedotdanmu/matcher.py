@@ -2,9 +2,9 @@
 import requests
 from bs4 import BeautifulSoup
 
-from server import bilibili, qq, app
-from server.model.play import Play
-from server.utils import strings
+from livedotdanmu import bilibili, qq, app
+from livedotdanmu.model.play import Play
+from livedotdanmu.utils import strings
 
 
 

@@ -1,7 +1,7 @@
 import guessit
 import requests
 from bs4 import BeautifulSoup
-from server import app
+from livedotdanmu import app
 
 
 class NameFinder():

@@ -3,8 +3,8 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from server import const, app
-from server.model.play import Play
+from livedotdanmu import const, app
+from livedotdanmu.model.play import Play
 
 
 def match(play: Play):

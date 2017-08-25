@@ -1,6 +1,6 @@
 import unittest
 
-from server import qq
+from livedotdanmu import qq
 
 
 class MyTestCase(unittest.TestCase):
