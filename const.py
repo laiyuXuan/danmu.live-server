@@ -1,0 +1,6 @@
+
+MOVIE = 0
+EPISODE = 1
+ANIMATED_EPISODE = 2
+
+PREFIX_MOVIVE_NAME_YEAR_2_DANMU = "movie:name:year:{0}:{1}"
