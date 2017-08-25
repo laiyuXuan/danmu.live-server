@@ -1,9 +1,6 @@
 import unittest
 
-import requests
-import zlib
-
-import qq
+from server import qq
 
 
 class MyTestCase(unittest.TestCase):

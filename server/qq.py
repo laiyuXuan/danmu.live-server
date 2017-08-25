@@ -1,9 +1,10 @@
-import requests
 import json
+
+import requests
 from bs4 import BeautifulSoup
 
-import const
-from model.play import Play
+from server import const
+from server.model.play import Play
 
 URLS = {
     'GET_DANMU_ID': 'https://bullet.video.qq.com/fcgi-bin/target/regist?otype=json&cid={0}&lid=&g_tk=&vid={1}',
@@ -13,7 +14,7 @@ URLS = {
 COUNT = 3000
 
 
-def match(play:Play):
+def match(play: Play):
     if play.type == const.MOVIE:
         url = search_by_name(play)
         if url is None or url == '':
@@ -33,6 +34,7 @@ def match(play:Play):
         print('reach a todo block')
         pass
 
+
 def get_true_play_url(url):
     r = requests.get(url)
     print(r.text)
@@ -45,11 +47,12 @@ def get_true_play_url(url):
         if tag['rel'] and tag['rel'][0] == 'canonical':
             return tag['href']
 
-def get_danmu_id(url:str):
+
+def get_danmu_id(url: str):
     splits = url.split('/')
     vid = splits[splits.__len__() - 1].split('.')[0]
     cid = splits[splits.__len__() - 2]
-    print('vid: %s, cid: %s' %(vid, cid))
+    print('vid: %s, cid: %s' % (vid, cid))
     r = requests.get(str.format(URLS['GET_DANMU_ID'], cid, vid))
     if r.status_code != 200:
         return None
@@ -67,7 +70,7 @@ def format_danmu(raw):
             'author': comment['opername'],
             'time': comment['timepoint'],
             'text': comment['content'],
-            'color': '#' + style['color'] if not style is None and 'color' in style else 'ffffff' ,
+            'color': '#' + style['color'] if not style is None and 'color' in style else 'ffffff',
             'type': 'right'
         }
         danmus.append(danmu)
@@ -80,12 +83,12 @@ def format_danmu(raw):
 
 def get_danmu(danmuid, count):
     r = requests.get(str.format(URLS['GET_DANMU'], danmuid, count))
-    if r.status_code != 200 :
+    if r.status_code != 200:
         return None
     return format_danmu(r.text)
 
 
-def search_by_name(play:Play):
+def search_by_name(play: Play):
     if play.type == const.MOVIE:
         r = requests.get(str.format(URLS['SEARCH'], play.name))
         soup = BeautifulSoup(r.text, 'lxml')
@@ -93,9 +96,10 @@ def search_by_name(play:Play):
 
         if matched is None or matched.__len__() == 0:
             return None
-        matched = filter(lambda m : m.find_all(class_='icon_source icon_source_tencentvideo').__len__() > 0   ,matched).__next__()
+        matched = filter(lambda m: m.find_all(class_='icon_source icon_source_tencentvideo').__len__() > 0,
+                         matched).__next__()
         if matched is None or matched.__len__() == 0:
-            print('not found with tencent source for :%s' %(play.name))
+            print('not found with tencent source for :%s' % (play.name))
             return None
         return matched.find_all(class_='btn_primary')[0]['href']
     elif play.type == const.EPISODE:

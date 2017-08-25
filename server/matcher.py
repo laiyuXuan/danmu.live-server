@@ -2,13 +2,9 @@
 import requests
 from bs4 import BeautifulSoup
 
-import bilibili
-import qq
-from model.play import Play
-from utils import strings
-
-ACPLAY_API_URL = "http://acplay.net/api/v1/match?hash=0&length=5&duration=0&fileName="
-BILIBILI_DANMU_URL = "http://comment.bilibili.com/{0}.xml"
+from server import bilibili, qq, app
+from server.model.play import Play
+from server.utils import strings
 
 
 def match_danmu(play: Play):
@@ -23,6 +19,7 @@ def match_danmu(play: Play):
     print("reach a todo block...")
     return None
 
+
 def parse_movie_name(filename):
     parsed = parse_with_own_method(filename)
     if not parsed is None:
@@ -30,7 +27,7 @@ def parse_movie_name(filename):
     # guessed = guessit(filename)
     # if not guessed is None:
     #     return Play(name=guessed['title'])
-    matched =query_acplay(filename)
+    matched = query_acplay(filename)
     if not matched is None:
         splits = str.split(matched['animetitle'], "(")
         year = splits[1].split(",")[1].remove(")") if splits.__len__() == 2 and splits[1].split(
@@ -41,7 +38,7 @@ def parse_movie_name(filename):
 
 def query_acplay(filename):
     headers = {'ACCEPT': 'text/xml'}
-    r = requests.get(ACPLAY_API_URL + filename, headers=headers)
+    r = requests.get(app.config['ACPLAY_API_URL'] + filename, headers=headers)
     soup = BeautifulSoup(r.text, 'lxml')
     matches = soup.findAll('match')
     if matches.__len__() == 0:

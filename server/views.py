@@ -1,24 +1,14 @@
 # -*- coding: utf-8 -*-
 import uuid
 
-import redis
-from flask import Flask
 from flask_cors import CORS
 from flask_restful import Resource, Api
 
-import const
-import matcher
-from name_finder import NameFinder
-from utils import files
+from server import matcher, bilibili, const, redis, app
+from server.utils import files
 
-app = Flask(__name__)
 api = Api(app)
 CORS(app, supports_credentials=True)
-
-origin = 'http://127.0.0.1:8887'
-client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True, charset='utf-8')
-
-DANMU_FILE_PATH = '/danmu/'
 
 
 # @api.representation('application/json')
@@ -35,16 +25,8 @@ class HelloWorld(Resource):
 
 class Search(Resource):
     def get(self, keyword):
-        b = Bilibili()
-        id = b.search_movie(keyword)
+        id = bilibili.search_movie(keyword)
         return {'id': id}
-
-
-class Parse(Resource):
-    def get(self, filename):
-        n = NameFinder()
-        match = n.query_acplay(filename)
-        return {'name': match}
 
 
 class DanmuMatch(Resource):
@@ -52,7 +34,7 @@ class DanmuMatch(Resource):
         play = matcher.parse_movie_name(name)
         if play is None:
             return {'no': 'match'}, 400
-        danmuId = client.get(
+        danmuId = redis.get(
             str.format(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''))
         if not danmuId is None:
             print('danmu for %s is found in local' % (play.name))
@@ -61,20 +43,15 @@ class DanmuMatch(Resource):
         if danmu is None or danmu == '':
             return {'no': 'match'}, 400
         danmuId = uuid.uuid4().hex
-        files.write_json_file(DANMU_FILE_PATH + danmuId, danmu)
-        client.set(str.format(
+        files.write_json_file(app.config['DANMU_FILE_PATH'] + danmuId, danmu)
+        redis.set(str.format(
             const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''), danmuId)
         return {'danmuId': danmuId}
 
 
 class DanmuByID(Resource):
     def get(self, id):
-        return files.open_json_file(DANMU_FILE_PATH + id)
-
-
-class Test(Resource):
-    def get(self):
-        return {'cn': '中文'}
+        return files.open_json_file(app.config['DANMU_FILE_PATH'] + id)
 
 
 class BasicDanmu(Resource):
@@ -89,7 +66,7 @@ class BasicDanmu(Resource):
                         "type": "top"
                     }]}
 
-api.add_resource(Test, '/test')
+
 api.add_resource(HelloWorld, '/')
 api.add_resource(DanmuMatch, '/danmu/match/<name>')
 api.add_resource(DanmuByID, '/danmu/id/<id>')

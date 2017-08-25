@@ -1,18 +1,16 @@
 import re
-from bs4 import BeautifulSoup
+
 import requests
+from bs4 import BeautifulSoup
 
-import const
-from model.play import Play
+from server import const, app
+from server.model.play import Play
 
-SEARCH_URL_PGC = "https://search.bilibili.com/pgc?keyword="
-SEARCH_URL_MOVIE = "https://search.bilibili.com/all?page=1&order=totalrank&duration=4&tids_1=23&keyword="
-BILIBILI_DANMU_URL = "http://comment.bilibili.com/{0}.xml"
 
-def match(play:Play):
+def match(play: Play):
     if play.type == const.MOVIE:
         cid = search_movie(play.name)
-        r = requests.get(str.format(BILIBILI_DANMU_URL, cid))
+        r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], cid))
         return format_danmu(r.text)
     elif play.type == const.EPISODE:
         print('reach a todo block')
@@ -24,17 +22,17 @@ def match(play:Play):
 def search_movie(keyword):
     link = try_pgc_search(keyword)
     if not link is None:
-        print('found a url for movie %s : %s' %(keyword, link))
+        print('found a url for movie %s : %s' % (keyword, link))
         return get_cid(link)
-    link = try_movie_search(self, keyword)
+    link = try_movie_search(keyword)
     if not link is None:
-        print('found a url for movie %s : %s' %(keyword, link))
+        print('found a url for movie %s : %s' % (keyword, link))
         return get_cid(link)
     return None
 
 
 def try_pgc_search(keyword):
-    r = requests.get(SEARCH_URL_PGC + keyword)
+    r = requests.get(app.config['SEARCH_URL_PGC'] + keyword)
     if r.status_code != 200:
         return
     soup = BeautifulSoup(r.text, "lxml")
@@ -65,7 +63,7 @@ def get_cid(link):
 
 
 def try_movie_search(keyword):
-    r = requests.get(SEARCH_URL_MOVIE + keyword)
+    r = requests.get(app.config['SEARCH_URL_MOVIE'] + keyword)
     if r.status_code != 200:
         return
     soup = BeautifulSoup(r.text, "lxml")
@@ -108,7 +106,7 @@ def format_danmu(response):
 
 
 def get_danmu_by_cid(id):
-    r = requests.get(str.format(BILIBILI_DANMU_URL, id))
+    r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], id))
     return format_danmu(r.text)
 
 
