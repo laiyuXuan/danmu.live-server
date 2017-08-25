@@ -24,8 +24,8 @@ def match(play: Play):
         if danmuId is None or danmuId == '':
             print('failed to find danmuId of %s with v.qq.com url %s' % (play.name, url))
             return None
-        danmu = get_danmu(url, COUNT)
-        return format_danmu(danmu)
+        danmu = get_danmu(danmuId, COUNT)
+        return danmu
 
     elif play.type == const.EPISODE:
         print('reach a todo block')

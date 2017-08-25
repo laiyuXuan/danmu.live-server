@@ -4,7 +4,7 @@ REDIS_URL = 'redis://:@localhost:6379/0'
 
 ORIGIN = 'http://127.0.0.1:8887'
 
-DANMU_FILE_PATH = '/danmu/'
+DANMU_FILE_PATH = 'static/danmu/'
 
 # urls
 ACPLAY_API_URL = "http://acplay.net/api/v1/match?hash=0&length=5&duration=0&fileName="

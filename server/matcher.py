@@ -7,6 +7,7 @@ from server.model.play import Play
 from server.utils import strings
 
 
+
 def match_danmu(play: Play):
     danmu = bilibili.match(play)
     if not danmu is None:
@@ -50,7 +51,7 @@ def parse_with_own_method(filename):
     zh = strings.extract_zh(filename)
     if zh is None:
         return None
-    file = open('movie_stop_words')
+    file = open('static/movie_stop_words')
     stopWords = file.read()
     stopWordList = stopWords.split("\n")
     for stopWord in stopWordList:
