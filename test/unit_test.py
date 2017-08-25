@@ -33,8 +33,11 @@ class MyTestCase(unittest.TestCase):
         # return content
         # print(content)
         # print(qq.get_vid('https://v.qq.com/x/cover/71bctb897dwx46m.html'))
-        print(qq.get_danmu('1992564676', 3000))
+        # print(qq.get_danmu('1992564676', 3000))
 
+        file = open('/Users/lyons/doc/sample-danmu-qq.json', 'r')
+        print(qq.format_danmu(file.read()))
+        file.close()
 
 if __name__ == '__main__':
     unittest.main()

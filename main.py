@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-import json
 import uuid
 
 import redis
-import requests
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Resource, Api
 
 import const
-from bili import Bilibili
-from matcher import Matcher
+import matcher
 from name_finder import NameFinder
 from utils import files
 
@@ -52,8 +49,7 @@ class Parse(Resource):
 
 class DanmuMatch(Resource):
     def get(self, name):
-        m = Matcher()
-        play = m.parse_movie_name(name)
+        play = matcher.parse_movie_name(name)
         if play is None:
             return {'no': 'match'}, 400
         danmuId = client.get(
@@ -61,20 +57,14 @@ class DanmuMatch(Resource):
         if not danmuId is None:
             print('danmu for %s is found in local' % (play.name))
             return {'danmuId': danmuId}
-        url = Matcher().match_danmu(play)
-        if url is None or url == '':
+        danmu = matcher.match_danmu(play)
+        if danmu is None or danmu == '':
             return {'no': 'match'}, 400
-        print('danmu url: %s' % (url))
-        r = requests.get(url)
-        danmu = Bilibili().convert_danmu_2_json(r.text)
-        if not danmu is None:
-            danmuId = uuid.uuid4().hex
-            files.write_json_file(DANMU_FILE_PATH + danmuId, danmu)
-            client.set(str.format(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name,
-                                  play.year if not play.year is None else ''), danmuId)
-            return {'danmuId': danmuId}
-        else:
-            return {'no': 'match'}, 400
+        danmuId = uuid.uuid4().hex
+        files.write_json_file(DANMU_FILE_PATH + danmuId, danmu)
+        client.set(str.format(
+            const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''), danmuId)
+        return {'danmuId': danmuId}
 
 
 class DanmuByID(Resource):
