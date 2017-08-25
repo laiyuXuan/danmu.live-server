@@ -1,4 +1,4 @@
 danmu/
 .idea/
 instance/
-livedotdanmu/__pycache__
+__pycache__
