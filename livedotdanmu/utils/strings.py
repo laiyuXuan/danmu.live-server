@@ -7,18 +7,13 @@ def extract_zh(text):
     result = re.compile('[\u4e00-\u9fff]+', re.UNICODE).findall(text)
     return str.join('', result) if not result is None and result.__len__() > 0 else None
 
-def build_episode_name_season_zh(play:Play):
+def build_season_zh(play:Play):
     s = arabic_num_to_zh(play.season)
-    return play.name + '第' + s + '季'
+    return '第' + s + '季'
 
-def build_episode_name_season_episode_zh(play:Play):
-    s = arabic_num_to_zh(play.season)
+def build_episode_zh(play:Play):
     e = arabic_num_to_zh(play.episode)
-    return play.name + '第' + s + '季' + '第' + e + '集'
-
-def build_episode_name_episode_zh(play:Play):
-    e = arabic_num_to_zh(play.episode)
-    return play.name + '第' + e + '集'
+    return '第' + e + '集'
 
 def arabic_num_to_zh(num):
     if num == '0':
