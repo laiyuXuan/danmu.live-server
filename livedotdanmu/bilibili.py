@@ -11,13 +11,15 @@ from livedotdanmu.utils import strings
 def match(play: Play):
     if play.type == const.MOVIE:
         cid = search_movie(play.name)
-        r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], cid))
-        return format_danmu(r.text)
     elif play.type == const.EPISODE:
-        print('reach a todo block')
+        cid = search_episode(play)
     else:
         print('reach a todo block')
-        pass
+        cid = None
+    if cid is None:
+        return None
+    r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], cid))
+    return format_danmu(r.text)
 
 
 def search_movie(keyword):

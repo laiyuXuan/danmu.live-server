@@ -36,7 +36,7 @@ class MyTestCase(unittest.TestCase):
         # file = open('/Users/lyons/doc/sample-danmu-qq.json', 'r')
         # print(qq.format_danmu(file.read()))
         # file.close()
-        print(bilibili.search_episode(Play(name='陨落星辰', season=3, episode=1)))
+        print(bilibili.search_episode(Play(name='陨落星辰', season=1, episode=10)))
         # print("123123 {}".format(1))
 
 if __name__ == '__main__':
