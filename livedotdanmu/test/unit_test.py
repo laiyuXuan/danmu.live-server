@@ -1,6 +1,7 @@
 import unittest
 
-from livedotdanmu import qq
+from livedotdanmu import bilibili
+from livedotdanmu.model.play import Play
 
 
 class MyTestCase(unittest.TestCase):
@@ -32,9 +33,11 @@ class MyTestCase(unittest.TestCase):
         # print(qq.get_vid('https://v.qq.com/x/cover/71bctb897dwx46m.html'))
         # print(qq.get_danmu('1992564676', 3000))
 
-        file = open('/Users/lyons/doc/sample-danmu-qq.json', 'r')
-        print(qq.format_danmu(file.read()))
-        file.close()
+        # file = open('/Users/lyons/doc/sample-danmu-qq.json', 'r')
+        # print(qq.format_danmu(file.read()))
+        # file.close()
+        print(bilibili.search_episode(Play(name='陨落星辰', season=3, episode=1)))
+        # print("123123 {}".format(1))
 
 if __name__ == '__main__':
     unittest.main()

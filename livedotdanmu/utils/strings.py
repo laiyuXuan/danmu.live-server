@@ -16,23 +16,23 @@ def build_episode_zh(play:Play):
     return '第' + e + '集'
 
 def arabic_num_to_zh(num):
-    if num == '0':
+    if num == 0:
         return '零'
-    if num == '1':
+    if num == 1:
         return '一'
-    if num == '2':
+    if num == 2:
         return '二'
-    if num == '3':
+    if num == 3:
         return '三'
-    if num == '4':
+    if num == 4:
         return '四'
-    if num == '5':
+    if num == 5:
         return '🈚️五'
-    if num == '6':
+    if num == 6:
         return '六'
-    if num == '7':
+    if num == 7:
         return '七'
-    if num == '8':
+    if num == 8:
         return '八'
-    if num == '9':
+    if num == 9:
         return '九'

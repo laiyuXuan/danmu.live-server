@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from livedotdanmu import const, app
 from livedotdanmu.model.play import Play
+from livedotdanmu.utils import strings
 
 
 def match(play: Play):
@@ -31,8 +32,49 @@ def search_movie(keyword):
     return None
 
 
+def search_episode(play: Play):
+    result = search_ended_episode(play, app.config['BILIBILI_SEARCH_URL_EPISODE_ENDED'])
+    if not result is None:
+        return get_episode_cid(result, play)
+    result = search_ended_episode(play, app.config['BILIBILI_SEARCH_URL_EPISODE_SHOWING'])
+    if not result is None:
+        return get_episode_cid(result, play)
+    return None
+
+
+def search_ended_episode(play: Play, searchUrl):
+    seasonZH = strings.build_season_zh(play)
+    r = requests.get(str.format(searchUrl, play.name + seasonZH))
+    if r.status_code != 200:
+        print('bad request when searching episode on bilibili :%s' % (r.text))
+        return None
+    soup = BeautifulSoup(r.text, 'lxml')
+    video_matrix = soup.select(".video.matrix")
+    if video_matrix is None or video_matrix.__len__() == 0:
+        print('no matched when searching episode on bilibili for play %s' % (play.name + seasonZH))
+        return None
+    for video in video_matrix:
+        title: str = video.find_all('a')[0]['title']
+        if title.__contains__(play.name) and title.__contains__(seasonZH):
+            return 'http:' + video.find_all('a')[0]['href']
+    print('no matched when searching episode on bilibili for play %s' % (play.name + seasonZH))
+    return None
+
+
+def get_episode_cid(url, play:Play):
+    r = requests.get(url)
+    if r.status_code != 200:
+        print('bad request when getting episode cid on bilibili %s' %(url))
+        return None
+    soup = BeautifulSoup(r.text, 'lxml')
+    options = soup.select('div.player-wrapper')[0].find_all('option')
+    # TODO save other episodes' danmu to db
+    print('found a cid on bilibili for {} {} {}'.format(play.name, play.season, play.episode))
+    return options[play.episode - 1]['cid']
+
+
 def try_pgc_search(keyword):
-    r = requests.get(app.config['SEARCH_URL_PGC'] + keyword)
+    r = requests.get(app.config['BILIBILI_SEARCH_URL_PGC'] + keyword)
     if r.status_code != 200:
         return
     soup = BeautifulSoup(r.text, "lxml")
@@ -63,7 +105,7 @@ def get_cid(link):
 
 
 def try_movie_search(keyword):
-    r = requests.get(app.config['SEARCH_URL_MOVIE'] + keyword)
+    r = requests.get(app.config['BILIBILI_SEARCH_URL_MOVIE'] + keyword)
     if r.status_code != 200:
         return
     soup = BeautifulSoup(r.text, "lxml")
