@@ -1,5 +1,4 @@
 import json
-import os
 
 
 def open_json_file(path):
