@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import re
 import requests
 from bs4 import BeautifulSoup
 
-from livedotdanmu import bilibili, qq, app
+from livedotdanmu import bilibili, qq, app, douban
 from livedotdanmu.model.play import Play
 from livedotdanmu.utils import strings
 
@@ -21,10 +22,10 @@ def match_danmu(play: Play):
     return None
 
 
-def parse_movie_name(filename):
-    parsed = parse_with_own_method(filename)
-    if not parsed is None:
-        return Play(name=parsed)
+def parse_play_by_name(filename):
+    play = parse_with_own_method(filename)
+    if not play is None:
+        return play
     # guessed = guessit(filename)
     # if not guessed is None:
     #     return Play(name=guessed['title'])
@@ -56,4 +57,40 @@ def parse_with_own_method(filename):
     stopWordList = stopWords.split("\n")
     for stopWord in stopWordList:
         zh = zh.replace(stopWord, '')
-    return zh
+    season = extract_season(filename)
+    episode = extract_episode(filename)
+    type = douban.get_type(zh)
+    return Play(name=zh, season=season, episode=episode, type=type)
+
+
+def extract_season(filename):
+    result = re.compile('.*第(.+?)季').findall(filename)
+    if result.__len__() > 0:
+        return strings.any_to_arabic(result[0])
+
+    result = re.compile('.*S0(\d+?)').findall(filename)
+    if result.__len__() > 0:
+        return int(result[0])
+
+    result = re.compile('.*S1(\d+?)').findall(filename)
+    if result.__len__() > 0:
+        return int('1' + result[0])
+
+    result = re.compile('.*S(\d+?)').findall(filename)
+    if result.__len__() > 0:
+        return int(result[0])
+    print('failed to extract season from {}'.format(filename))
+
+
+def extract_episode(filename):
+    result = re.compile('.*第(.+?)集').findall(filename)
+    if result.__len__() > 0:
+        return strings.any_to_arabic(result[0])
+    result = re.compile('.*E(\d+?)(\d+?)').findall(filename)
+    if result.__len__() > 0 and result[0].__len__() == 2:
+        return int(result[0][0] + result[0][1])
+    result = re.compile('.*E(\d+?)').findall(filename)
+    if result.__len__() > 0:
+        return int(result[0])
+
+    print('failed to extract episode from {}'.format(filename))

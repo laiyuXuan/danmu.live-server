@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from livedotdanmu import const, app
 from livedotdanmu.model.play import Play
-from livedotdanmu.utils import strings
+from livedotdanmu.utils import strings, https
 
 
 def match(play: Play):
@@ -35,16 +35,16 @@ def search_movie(keyword):
 
 
 def search_episode(play: Play):
-    result = search_ended_episode(play, app.config['BILIBILI_SEARCH_URL_EPISODE_ENDED'])
+    result = get_episode_link(play, app.config['BILIBILI_SEARCH_URL_EPISODE_ENDED'])
     if not result is None:
         return get_episode_cid(result, play)
-    result = search_ended_episode(play, app.config['BILIBILI_SEARCH_URL_EPISODE_SHOWING'])
+    result = get_episode_link(play, app.config['BILIBILI_SEARCH_URL_EPISODE_SHOWING'])
     if not result is None:
         return get_episode_cid(result, play)
     return None
 
 
-def search_ended_episode(play: Play, searchUrl):
+def get_episode_link(play: Play, searchUrl):
     seasonZH = strings.build_season_zh(play)
     r = requests.get(str.format(searchUrl, play.name + seasonZH))
     if r.status_code != 200:
@@ -92,7 +92,7 @@ def get_cid(link):
         print(url)
         r = requests.get(
             url,
-            headers=fake_headers())
+            headers=https.fake_headers('bangumi.bilibili.com'))
         if r.status_code != 200:
             return
         pattern = "cid\=\"(.+?)\""
@@ -152,13 +152,3 @@ def format_danmu(response):
 def get_danmu_by_cid(id):
     r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], id))
     return format_danmu(r.text)
-
-
-def fake_headers():
-    return {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6',
-            'Connection': 'keep-alive',
-            'Host': 'bangumi.bilibili.com',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}

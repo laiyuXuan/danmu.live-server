@@ -1,6 +1,8 @@
 import unittest
 
-from livedotdanmu import bilibili
+import re
+
+from livedotdanmu import bilibili, matcher, douban
 from livedotdanmu.model.play import Play
 
 
@@ -36,8 +38,23 @@ class MyTestCase(unittest.TestCase):
         # file = open('/Users/lyons/doc/sample-danmu-qq.json', 'r')
         # print(qq.format_danmu(file.read()))
         # file.close()
-        print(bilibili.search_episode(Play(name='陨落星辰', season=1, episode=10)))
+        # print(bilibili.search_episode(Play(name='陨落星辰', season=1, episode=10)))
         # print("123123 {}".format(1))
+        # result = re.compile('E0(\d+?)').match('S01')
+        # print(result)
+        # print(matcher.extract_season("权力的游戏第七季第五集"))
+        # print(matcher.extract_episode("权力的游戏第七季第五集"))
+
+        # print(matcher.extract_season("权力SSS的游EEE戏S3E06SSEE"))
+        # print(matcher.extract_episode("权力SSS的游EEE戏S3E06SSEE"))
+        #
+        # print(matcher.extract_season("SSS06权力EE的游戏S01E2SESE"))
+        # print(matcher.extract_episode("SSE权力的游戏S01E2EESSS"))
+        #
+        # print(matcher.extract_season("权力的游戏S10E20SSS"))
+        # print(matcher.extract_episode("权力的游戏S10E20E"))
+
+        print(douban.get_type('权力的游戏'))
 
 if __name__ == '__main__':
     unittest.main()

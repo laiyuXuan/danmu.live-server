@@ -31,7 +31,7 @@ class Search(Resource):
 
 class DanmuMatch(Resource):
     def get(self, name):
-        play = matcher.parse_movie_name(name)
+        play = matcher.parse_play_by_name(name)
         if play is None:
             return {'no': 'match'}, 400
         danmuId = redis.get(
