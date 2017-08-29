@@ -39,13 +39,9 @@ class DanmuMatch(Resource):
         if not danmuId is None:
             print('danmu for %s is found in local' % (play.name))
             return {'danmuId': danmuId}
-        danmu = matcher.match_danmu(play)
-        if danmu is None or danmu == '':
+        danmuId = matcher.match(play)
+        if danmuId is None or danmuId == '':
             return {'no': 'match'}, 400
-        danmuId = uuid.uuid4().hex
-        files.write_json_file(app.config['DANMU_FILE_PATH'] + danmuId, danmu)
-        redis.set(str.format(
-            const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''), danmuId)
         return {'danmuId': danmuId}
 
 

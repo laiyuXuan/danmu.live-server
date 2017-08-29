@@ -1,22 +1,35 @@
 # -*- coding: utf-8 -*-
 import re
+import uuid
+
 import requests
 from bs4 import BeautifulSoup
 
-from livedotdanmu import bilibili, qq, app, douban
+from livedotdanmu import bilibili, qq, app, douban, redis, const
 from livedotdanmu.model.play import Play
-from livedotdanmu.utils import strings
+from livedotdanmu.utils import strings, files
 
 
+def match(play:Play):
+    danmu = search_danmu(play)
+    if danmu is None:
+        return None
+    danmuId = uuid.uuid4().hex
+    print('danmuId {} for {}({})'.format(danmuId, play.name, play.year))
+    files.write_json_file(app.config['DANMU_FILE_PATH'] + danmuId, danmu)
+    redis.set(str.format(
+        const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''), danmuId)
+    return danmuId
 
-def match_danmu(play: Play):
+
+def search_danmu(play: Play):
     danmu = bilibili.match(play)
     if not danmu is None:
-        print('a danmu if found with bilibili')
+        print('a danmu is found with bilibili')
         return danmu
     danmu = qq.match(play)
     if not danmu is None:
-        print('a danmu if found with qq')
+        print('a danmu is found with qq')
         return danmu
     print("reach a todo block...")
     return None

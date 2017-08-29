@@ -54,7 +54,8 @@ class MyTestCase(unittest.TestCase):
         # print(matcher.extract_season("权力的游戏S10E20SSS"))
         # print(matcher.extract_episode("权力的游戏S10E20E"))
 
-        print(douban.get_type('权力的游戏'))
+        # print(douban.get_type('权力的游戏'))
+        douban.crawl_rank_top('', 11)
 
 if __name__ == '__main__':
     unittest.main()
