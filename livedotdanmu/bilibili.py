@@ -7,6 +7,8 @@ from livedotdanmu import const, app
 from livedotdanmu.model.play import Play
 from livedotdanmu.utils import strings, https
 
+PREFIX_PARTITION = 'part-'
+
 
 def match(play: Play):
     if play.type == const.MOVIE:
@@ -18,8 +20,36 @@ def match(play: Play):
         cid = None
     if cid is None:
         return None
+    if cid.startswith(PREFIX_PARTITION):
+        return get_danmu_for_partitions(cid)
     r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], cid))
     return format_danmu(r.text)
+
+
+def get_danmu_for_partitions(htmlText):
+    htmlText.replace(PREFIX_PARTITION)
+
+    soup = BeautifulSoup(htmlText, 'lxml')
+    options = soup.select('div.player-wrapper')[0].find_all('option')
+    # 国粤 or 粤国
+    if options.__len__() == 2 and (
+            (options[0].contents.__contains__('国') and options.contents.__contains__('粤'))
+        or  (options[0].contents.__contains__('粤') and options.contents.__contains__('国'))
+    ):
+        # TODO: only one of the two danmu is returned, should be fixed later
+        return format_danmu(requests.get(str.format(app.config['BILIBILI_DANMU_URL'], options[0]['cid'])).text)
+    else:
+        allContents = ''.join(map(lambda o: o.contents, options))
+        if allContents.__contains__('粤') and allContents.__contains__('国'):
+            # have 2 different sound track
+            return get_danmu_for_diff_sound_track_and_parted(soup)
+        else:
+            # have been parted
+            return get_danmu_for_parted(soup)
+
+
+
+
 
 
 def search_movie(keyword):
@@ -96,11 +126,14 @@ def get_cid(link):
         if r.status_code != 200:
             return
         pattern = "cid\=\"(.+?)\""
-        pattern1 = "cid\=(.+?)&"
         cid = re.findall(pattern, r.text, False)
         if cid.__len__() != 0:
             return cid[0]
-        return re.findall(pattern1, r.text, False)[0]
+        soup = BeautifulSoup(r.text, 'lxml')
+        options = soup.select('div.player-wrapper')[0].find_all('option')
+        if options.__len__() == 1:
+            return options[0]['cid']
+        return PREFIX_PARTITION + r.text
     except requests.exceptions.ConnectionError:
         print("something went wrong...")
         return None
