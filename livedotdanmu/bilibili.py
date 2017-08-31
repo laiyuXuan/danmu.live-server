@@ -48,6 +48,15 @@ def get_danmu_for_partitions(htmlText):
             return get_danmu_for_parted(soup)
 
 
+def get_danmu_for_parted(soup:BeautifulSoup):
+    # TODO: implement this
+    print('reach a todo block...')
+    return None
+
+def get_danmu_for_diff_sound_track_and_parted(soup:BeautifulSoup):
+    # TODO: implement this
+    print('reach a todo block...')
+    return None
 
 
 

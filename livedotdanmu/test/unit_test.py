@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import hashlib
 import unittest
 
 import re
@@ -55,7 +58,41 @@ class MyTestCase(unittest.TestCase):
         # print(matcher.extract_episode("权力的游戏S10E20E"))
 
         # print(douban.get_type('权力的游戏'))
-        douban.crawl_rank_top('', 11)
+        params = {
+            'cid':3505577,
+            'otype':'json',
+            'type':'',
+            'quality':0,
+            'qn':0,
+        }
+
+        print(GetSign(params, 'f3bb208b3d081dc8', AppSecret='1c15888dc316e05a15fdd0a02ed6584f'))
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def GetSign(params, appkey, AppSecret=None):
+    """
+    获取新版API的签名，不然会返回-3错误
+待添加：【重要！】
+    需要做URL编码并保证字母都是大写，如 %2F
+
+    cid = 3505577 & appkey = 84956560
+    bc028eb7 & otype = json & type = & quality = 0 & qn = 0 & sign = c06528d8bae2a511054aab27faf1883a
+"""
+    # params['appkey']=appkey
+    # data = ""
+    # paras = params.keys()
+    # sorted(paras)
+    # for para in paras:
+    #     if data != "":
+    #         data += "&"
+    #     data += para + "=" + str(params[para])
+    # if AppSecret == None:
+    #     return data
+    # m = hashlib.md5()
+    # m.update('cid=${cid}&from=miniplay&player=1&quality=2&type=mp4')
+    #
+    # m.update(data.encode('utf-8')+AppSecret.encode('utf-8'))
+    return hashlib.md5("cid=3505577&from=miniplay&player=1&quality=2&type=mp41c15888dc316e05a15fdd0a02ed6584f".encode('utf-8')).hexdigest()

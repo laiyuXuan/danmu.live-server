@@ -15,5 +15,8 @@ BILIBILI_SEARCH_URL_PGC = "https://search.bilibili.com/pgc?keyword="
 BILIBILI_SEARCH_URL_MOVIE = "https://search.bilibili.com/all?page=1&order=totalrank&duration=4&tids_1=23&keyword="
 BILIBILI_SEARCH_URL_EPISODE_ENDED = "https://search.bilibili.com/all?keyword={0}&page=1&order=totalrank&tids_1=11&tids_2=34"
 BILIBILI_SEARCH_URL_EPISODE_SHOWING = "https://search.bilibili.com/all?keyword={0}&page=1&order=totalrank&tids_1=11&tids_2=15"
+BILIBILI_VIDEO_INFO_URL = "https://interface.bilibili.com/playurl?cid={}&from=miniplay&player=1&quality=2&type=mp4"
+BILIBILI_APPKEY = "f3bb208b3d081dc8"
+BILIBILI_SECRET = "f3bb208b3d081dc8"
 # douban
 DOUBAN_SEARCH_MOVICE_URL = "https://api.douban.com/v2/movie/search?q={}"
