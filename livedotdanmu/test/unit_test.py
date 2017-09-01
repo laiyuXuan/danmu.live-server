@@ -5,6 +5,9 @@ import unittest
 
 import re
 
+import requests
+from bs4 import BeautifulSoup
+
 from livedotdanmu import bilibili, matcher, douban
 from livedotdanmu.model.play import Play
 
@@ -58,15 +61,17 @@ class MyTestCase(unittest.TestCase):
         # print(matcher.extract_episode("权力的游戏S10E20E"))
 
         # print(douban.get_type('权力的游戏'))
-        params = {
-            'cid':3505577,
-            'otype':'json',
-            'type':'',
-            'quality':0,
-            'qn':0,
-        }
+        # params = {
+        #     'cid':3505577,
+        #     'otype':'json',
+        #     'type':'',
+        #     'quality':0,
+        #     'qn':0,
+        # }
+        #
+        # print(GetSign(params, 'f3bb208b3d081dc8', AppSecret='1c15888dc316e05a15fdd0a02ed6584f'))
 
-        print(GetSign(params, 'f3bb208b3d081dc8', AppSecret='1c15888dc316e05a15fdd0a02ed6584f'))
+        bilibili.get_danmu_for_diff_sound_track_and_parted(BeautifulSoup(requests.get("https://www.bilibili.com/video/av2300622/").text, 'lxml'))
 
 if __name__ == '__main__':
     unittest.main()

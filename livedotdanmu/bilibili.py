@@ -1,13 +1,17 @@
+import hashlib
+import json
 import re
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from livedotdanmu import const, app
 from livedotdanmu.model.play import Play
 from livedotdanmu.utils import strings, https
 
 PREFIX_PARTITION = 'part-'
+
+VIDEO_LINK_PREFIX = "https://www.bilibili.com"
 
 
 def match(play: Play):
@@ -33,8 +37,8 @@ def get_danmu_for_partitions(htmlText):
     options = soup.select('div.player-wrapper')[0].find_all('option')
     # 国粤 or 粤国
     if options.__len__() == 2 and (
-            (options[0].contents.__contains__('国') and options.contents.__contains__('粤'))
-        or  (options[0].contents.__contains__('粤') and options.contents.__contains__('国'))
+                (options[0].contents.__contains__('国') and options.contents.__contains__('粤'))
+            or (options[0].contents.__contains__('粤') and options.contents.__contains__('国'))
     ):
         # TODO: only one of the two danmu is returned, should be fixed later
         return format_danmu(requests.get(str.format(app.config['BILIBILI_DANMU_URL'], options[0]['cid'])).text)
@@ -48,17 +52,46 @@ def get_danmu_for_partitions(htmlText):
             return get_danmu_for_parted(soup)
 
 
-def get_danmu_for_parted(soup:BeautifulSoup):
-    # TODO: implement this
-    print('reach a todo block...')
-    return None
-
-def get_danmu_for_diff_sound_track_and_parted(soup:BeautifulSoup):
-    # TODO: implement this
-    print('reach a todo block...')
-    return None
+def get_danmu_for_parted(soup: BeautifulSoup):
+    options = soup.select('div.player-wrapper')[0].find_all('option')
+    cids = list(map(lambda o: o['cid'], options))
+    return combine_danmu(cids)
 
 
+def combine_danmu(cids):
+    allDanmu = get_danmu_by_cid(cids[0])
+    for idx, cid in enumerate(cids):
+        if idx == 0:
+            continue
+        vinfo: BeautifulSoup = get_video_info_by_api(cid)
+        if vinfo is None:
+            continue
+        partLength = float(vinfo.find_all('timelength')[0].text) / 1000
+        danmu = get_danmu_by_cid(cid)
+        if danmu is None:
+            continue
+        danmakus = danmu['danmaku']
+        for danmaku in danmakus:
+            danmaku['time'] = float(danmaku['time']) + partLength
+        allDanmu['danmaku'].extend(danmakus)
+    return allDanmu
+
+
+def get_danmu_for_diff_sound_track_and_parted(soup: BeautifulSoup):
+    # 1.there could be 2 scenario: ABABAB and AAABBB, so im gonna deal with these separately
+    # 2.only half of the danmaku would be returned TODO: need to improve this later
+    options = soup.select('div.player-wrapper')[0].find_all('option')
+    # case ABABAB
+    if is_ABABAB(options):
+        cids = list(map(lambda o: o['cid'], options[::2]))
+        return combine_danmu(cids)
+    # case AAABBB
+    elif is_AAABBB(options):
+        cids = list(map(lambda o: o['cid'], options[:int(options.__len__() / 2)]))
+        return combine_danmu(cids)
+    else:
+        print('unexpected scenario for get_danmu_for_diff_sound_track_and_parted, returning none...')
+        return None
 
 
 def search_movie(keyword):
@@ -102,10 +135,10 @@ def get_episode_link(play: Play, searchUrl):
     return None
 
 
-def get_episode_cid(url, play:Play):
+def get_episode_cid(url, play: Play):
     r = requests.get(url)
     if r.status_code != 200:
-        print('bad request when getting episode cid on bilibili %s' %(url))
+        print('bad request when getting episode cid on bilibili %s' % (url))
         return None
     soup = BeautifulSoup(r.text, 'lxml')
     options = soup.select('div.player-wrapper')[0].find_all('option')
@@ -194,3 +227,30 @@ def format_danmu(response):
 def get_danmu_by_cid(id):
     r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], id))
     return format_danmu(r.text)
+
+
+def get_video_info_by_api(cid):
+    url: str = app.config['BILIBILI_VIDEO_INFO_URL'].format(cid)
+    params = url.split('?')[1]
+    sign = hashlib.md5((params + app.config['BILIBILI_SECRET']).encode('utf-8')).hexdigest()
+    r = requests.get(url + '&sign=' + sign)
+    if r.status_code != 200:
+        return None
+    return BeautifulSoup(r.text, 'lxml')
+
+
+def is_AAABBB(options:list):
+    firstHalf = ''.join(map(lambda o : o.text, options[:int(options.__len__() / 2)]))
+    if ((firstHalf.__contains__('粤') and not firstHalf.__contains__('国')) or ( firstHalf.__contains__('国') and not firstHalf.__contains__('粤'))):
+        return True
+    return False
+
+
+def is_ABABAB(options:list):
+    evenHalf = ''.join(map(lambda o: o.text, options[::2]))
+    if evenHalf.__contains__('国') and not evenHalf.__contains__('粤') or (
+        evenHalf.__contains__('粤') and not evenHalf.__contains__('国')
+    ):
+        return True
+    return False
+
