@@ -16,6 +16,10 @@ BILIBILI_SEARCH_URL_MOVIE = "https://search.bilibili.com/all?page=1&order=totalr
 BILIBILI_SEARCH_URL_EPISODE_ENDED = "https://search.bilibili.com/all?keyword={0}&page=1&order=totalrank&tids_1=11&tids_2=34"
 BILIBILI_SEARCH_URL_EPISODE_SHOWING = "https://search.bilibili.com/all?keyword={0}&page=1&order=totalrank&tids_1=11&tids_2=15"
 BILIBILI_VIDEO_INFO_URL = "https://interface.bilibili.com/playurl?cid={}&from=miniplay&player=1&quality=2&type=mp4"
+# qq
+QQ_SEARCH_URL = "https://v.qq.com/x/search/?q={}&stag=7&smartbox_ab="
+QQ_GET_DANMU_ID_URL = "https://bullet.video.qq.com/fcgi-bin/target/regist?otype=json&cid={}&lid=&g_tk=&vid={}"
+QQ_GET_DANMU_URL = "https://mfm.video.qq.com/danmu?otype=json&target_id={}&count={}"
 
 # douban
 DOUBAN_SEARCH_MOVICE_URL = "https://api.douban.com/v2/movie/search?q={}"

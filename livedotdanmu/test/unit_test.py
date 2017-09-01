@@ -8,7 +8,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from livedotdanmu import bilibili, matcher, douban
+from livedotdanmu import bilibili, matcher, douban, qq, const
 from livedotdanmu.model.play import Play
 
 
@@ -71,7 +71,9 @@ class MyTestCase(unittest.TestCase):
         #
         # print(GetSign(params, 'f3bb208b3d081dc8', AppSecret='1c15888dc316e05a15fdd0a02ed6584f'))
 
-        bilibili.get_danmu_for_diff_sound_track_and_parted(BeautifulSoup(requests.get("https://www.bilibili.com/video/av2300622/").text, 'lxml'))
+        # bilibili.get_danmu_for_diff_sound_track_and_parted(BeautifulSoup(requests.get("https://www.bilibili.com/video/av2300622/").text, 'lxml'))
+
+        qq.match(Play(name='权力的游戏', season=7, episode=4, type=const.EPISODE))
 
 if __name__ == '__main__':
     unittest.main()

@@ -142,7 +142,7 @@ def get_episode_cid(url, play: Play):
         return None
     soup = BeautifulSoup(r.text, 'lxml')
     options = soup.select('div.player-wrapper')[0].find_all('option')
-    # TODO save other episodes' danmu to db
+    # TODO: save other episodes' danmu to db
     print('found a cid on bilibili for {} {} {}'.format(play.name, play.season, play.episode))
     return options[play.episode - 1]['cid']
 
