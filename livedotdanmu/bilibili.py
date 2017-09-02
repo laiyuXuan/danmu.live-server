@@ -26,7 +26,8 @@ def match(play: Play):
         return None
     if cid.startswith(PREFIX_PARTITION):
         return get_danmu_for_partitions(cid)
-    r = requests.get(str.format(app.config['BILIBILI_DANMU_URL'], cid))
+    print('danmu url :{}'.format(app.config['BILIBILI_DANMU_URL'].format(cid)))
+    r = requests.get(app.config['BILIBILI_DANMU_URL'].format(cid))
     return format_danmu(r.text)
 
 

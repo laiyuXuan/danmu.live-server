@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import json
 import unittest
 
 import re
@@ -73,7 +74,10 @@ class MyTestCase(unittest.TestCase):
 
         # bilibili.get_danmu_for_diff_sound_track_and_parted(BeautifulSoup(requests.get("https://www.bilibili.com/video/av2300622/").text, 'lxml'))
 
-        qq.match(Play(name='权力的游戏', season=7, episode=4, type=const.EPISODE))
+        # qq.match(Play(name='权力的游戏', season=7, episode=4, type=const.EPISODE))
+        # douban.crawl_rank_top(11)
+        r = requests.get("https://mfm.video.qq.com/danmu?otype=json&target_id=1164172819&count=9999")
+        json.loads(r.text)
 
 if __name__ == '__main__':
     unittest.main()

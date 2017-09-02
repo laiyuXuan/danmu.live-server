@@ -103,15 +103,18 @@ def format_danmu(raw):
 
 
 def get_danmu(danmuid, count):
+    print('danmu url:{}'.format(app.config['QQ_GET_DANMU_URL'].format(danmuid, count)))
     r = requests.get(app.config['QQ_GET_DANMU_URL'].format(danmuid, count))
     if r.status_code != 200:
         return None
-    return format_danmu(r.text)
+    return format_danmu(r.text.encode('utf-8').replace(b'\x14', b'').replace(b'\x11', b'').decode('utf-8').replace(' ', ''))
 
 
 def search_movie_by_name(play: Play):
     matched = get_matched_video_div(play.name)
     if matched is None:
+        return None
+    if matched.find_all(class_='btn_primary').__len__() == 0:
         return None
     return matched.find_all(class_='btn_primary')[0]['href']
 
@@ -123,9 +126,9 @@ def get_matched_video_div(name):
 
     if matched.__len__() == 0:
         return None
-    matched = filter(lambda m: m.find_all(class_='icon_source icon_source_tencentvideo').__len__() > 0,
-                     matched).__next__()
+    matched = list(filter(lambda m: m.find_all(class_='icon_source icon_source_tencentvideo').__len__() > 0,
+                     matched))
     if matched is None or matched.__len__() == 0:
         print('not found with tencent source for :%s' % (name))
         return None
-    return matched
+    return matched[0]

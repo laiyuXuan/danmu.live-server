@@ -17,8 +17,9 @@ def match(play:Play):
     danmuId = uuid.uuid4().hex
     print('danmuId {} for {}({})'.format(danmuId, play.name, play.year))
     files.write_json_file(app.config['DANMU_FILE_PATH'] + danmuId, danmu)
-    redis.set(str.format(
-        const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''), danmuId)
+    redis.set(const.PREFIX_MOVIVE_NAME_2_DANMU.format(play.name), danmuId)
+    if not play.year is None:
+        redis.set(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU.format(play.name, play.year), danmuId)
     return danmuId
 
 

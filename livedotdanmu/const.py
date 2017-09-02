@@ -2,5 +2,6 @@ MOVIE = 0
 EPISODE = 1
 ANIMATED_EPISODE = 2
 
-PREFIX_MOVIVE_NAME_YEAR_2_DANMU = "movie:name:year:{0}:{1}"
-PREFIX_MOVIVE_NAME_YEAR_2_RAW_DANMU = "movie:name:year:{0}:{1}:raw"
+PREFIX_MOVIVE_NAME_2_DANMU = "movie:name:{}"
+PREFIX_MOVIVE_NAME_YEAR_2_DANMU = "movie:name:year:{}:{}"
+PREFIX_MOVIVE_NAME_YEAR_2_RAW_DANMU = "movie:name:year:{}:{}:raw"

@@ -2,9 +2,9 @@
 import uuid
 
 from flask_cors import CORS
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 
-from livedotdanmu import matcher, bilibili, const, redis, app
+from livedotdanmu import matcher, bilibili, const, redis, app, douban
 from livedotdanmu.utils import files
 
 api = Api(app)
@@ -34,8 +34,9 @@ class DanmuMatch(Resource):
         play = matcher.parse_play_by_name(name)
         if play is None:
             return {'no': 'match'}, 400
-        danmuId = redis.get(
-            str.format(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU, play.name, play.year if not play.year is None else ''))
+        danmuId = redis.get(const.PREFIX_MOVIVE_NAME_2_DANMU.format(play.name))
+        if danmuId is None and not play.year is None:
+            danmuId = redis.get(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU.format(play.name, play.year))
         if not danmuId is None:
             print('danmu for %s is found in local' % (play.name))
             return {'danmuId': danmuId}
@@ -62,11 +63,17 @@ class BasicDanmu(Resource):
                         "type": "top"
                     }]}
 
+class CrawlDouban(Resource):
+    def get(self, type):
+        args = reqparse.RequestParser().add_argument('start').parse_args()
+        douban.crawl_rank_top(type, int(args['start']) or 0)
+        return {'crawl':'started'}
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(DanmuMatch, '/danmu/match/<name>')
 api.add_resource(DanmuByID, '/danmu/id/<id>')
 api.add_resource(BasicDanmu, '/danmu/basic/<filename>')
+api.add_resource(CrawlDouban, '/danmu/crawl/<type>')
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])

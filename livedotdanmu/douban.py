@@ -1,8 +1,12 @@
 import json
 
-import requests
+import os
+import random
 
-from livedotdanmu import app, const, matcher
+import requests
+import time
+
+from livedotdanmu import app, const, matcher, redis
 from livedotdanmu.model.play import Play
 from livedotdanmu.utils import https
 
@@ -33,14 +37,23 @@ def do_search(name):
     return result
 
 
-def crawl_rank_top(typeName, type):
+def crawl_rank_top(type, start):
     r = requests.get(RANK_TOP_URL.format(type))
     if r.status_code != 200:
         print('request failed, {}'.format(r.text))
         return None
     results: [dict] = json.loads(r.text)
-    for result in results:
+    for idx, result in enumerate(results[start:]):
         title = result['title']
         year = str.split(result['release_date'], '-')[0]
-        matcher.match(Play(name=title, year=year, type=const.MOVIE))
+        danmuId = redis.get(const.PREFIX_MOVIVE_NAME_2_DANMU.format(title))
+        if danmuId is None:
+            danmuId = redis.get(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU.format(title, year))
+        if not danmuId is None:
+            print('danmu {} existed for {} ({})'.format(danmuId, title, year))
+            continue
+        danmuId = matcher.match(Play(name=title, year=year, type=const.MOVIE))
+        print('danmu for {} ({}) obtained, {}'.format(title, year, danmuId))
+        print('current idx {}'.format(start + idx))
+        time.sleep(random.randint(2, 4) * 2)
     print('ALL DONE.')
