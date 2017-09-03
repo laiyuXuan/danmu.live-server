@@ -1,4 +1,5 @@
 import re
+import string
 
 from livedotdanmu.model.play import Play
 
@@ -72,3 +73,13 @@ def any_to_arabic(num):
     if str.isdigit(num):
         return int(num)
     return zh_num_to_arabic(num)
+
+
+def extract_year(text):
+    return None
+
+
+def remove_punctuation(text:str):
+    cnPunc = '[！@#¥%……（）——～·【】「」、；：《》？／。，]+'
+    text = re.sub(cnPunc, '', text)
+    return ''.join(c for c in text if c not in string.punctuation)
