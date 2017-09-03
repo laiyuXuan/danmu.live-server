@@ -3,14 +3,19 @@
 import hashlib
 import json
 import unittest
+import js
 
 import re
 
 import requests
+import sys
+
+import zlib
 from bs4 import BeautifulSoup
 
-from livedotdanmu import bilibili, matcher, douban, qq, const
+from livedotdanmu import bilibili, matcher, douban, qq, const, iqiyi
 from livedotdanmu.model.play import Play
+from livedotdanmu.utils import strings
 
 
 class MyTestCase(unittest.TestCase):
@@ -76,8 +81,21 @@ class MyTestCase(unittest.TestCase):
 
         # qq.match(Play(name='权力的游戏', season=7, episode=4, type=const.EPISODE))
         # douban.crawl_rank_top(11)
-        r = requests.get("https://mfm.video.qq.com/danmu?otype=json&target_id=1164172819&count=9999")
-        json.loads(r.text)
+        # r = requests.get("https://mfm.video.qq.com/danmu?otype=json&target_id=1164172819&count=9999")
+        # json.loads(r.text)
+        # bilibili.match(Play(name='两杆大烟枪', year=1998, type=const.MOVIE))
+        # r = requests.get('http://cmts.iqiyi.com/bullet/11/00/350341100_300_1.z?rn=0.8241726098805287&business=danmu&is_iqiyi=true&is_video_page=true&tvid=350341100&albumid=350341100&categoryid=1&qypid=01010021010000000000', stream=True)
+        # array = int.from_bytes(r.raw.data, byteorder=sys.byteorder, signed=False)
+        # intArray = []
+        # for byte in bytearray(r.raw.data):
+        #     intArray.append(byte)
+        # decom = zlib.decompressobj().decompress(bytearray(r.raw.data))
+
+        # print(decom)
+        iqiyi.match(Play(name='钢铁侠', type=const.MOVIE))
+        # print(strings.remove_punctuation('哈~!@#$%^利&*()_+波|":>?<特\';/.,\"！@#¥%……*（）-=——+·～、|；／。，：？》《'))
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -165,7 +165,7 @@ def get_cid(link):
         print(url)
         r = requests.get(
             url,
-            headers=https.fake_headers('bangumi.bilibili.com'))
+            headers=https.fake_headers('www.bilibili.com'))
         if r.status_code != 200:
             return
         pattern = "cid\=\"(.+?)\""
@@ -182,14 +182,20 @@ def get_cid(link):
         return None
 
 
-def try_movie_search(keyword):
+def try_movie_search(keyword, year):
     r = requests.get(app.config['BILIBILI_SEARCH_URL_MOVIE'] + keyword)
     if r.status_code != 200:
-        return
+        return None
     soup = BeautifulSoup(r.text, "lxml")
     video_matrix = soup.select(".video.matrix")
     if video_matrix.__len__() == 0:
-        return
+        return None
+    videoDiv = video_matrix[0].select(".title")[0]
+    if not videoDiv['title'].__contains__(keyword):
+        return None
+    foundYear = strings.extract_year(videoDiv['title'])
+    if not year is None and not foundYear is None and year != foundYear:
+        return None
     return video_matrix[0].select(".title")[0]["href"]
 
 
@@ -199,9 +205,9 @@ def format_danmu(response):
     danmuTags = soup.findAll('d')
     if danmuTags.__len__() == 0:
         return
-    for danmu in danmuTags:
-        text = danmu.contents[0] if danmu.contents.__len__() > 0 else ''
-        infos = str.split(danmu['p'], ',')
+    for tag in danmuTags:
+        text = tag.contents[0] if tag.contents.__len__() > 0 else ''
+        infos = str.split(tag['p'], ',')
         if infos[1] == '4':
             type = 'bottom'
         elif infos[1] == '5':
@@ -209,7 +215,7 @@ def format_danmu(response):
         else:
             type = 'right'
         one_danmu = {
-            'author': 'Bilibili',
+            'author': 'beta',
             'time': infos[0],
             'text': text,
             'color': '#' + hex(int(infos[3])).replace('0x', ''),
@@ -221,7 +227,6 @@ def format_danmu(response):
         'code': 1,
         'danmaku': danmus
     }
-    # print('parsed result :' + result)
     return result
 
 

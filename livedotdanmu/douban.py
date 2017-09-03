@@ -53,7 +53,11 @@ def crawl_rank_top(type, start):
             print('danmu {} existed for {} ({})'.format(danmuId, title, year))
             continue
         danmuId = matcher.match(Play(name=title, year=year, type=const.MOVIE))
-        print('danmu for {} ({}) obtained, {}'.format(title, year, danmuId))
+        if not danmuId is None:
+            print('danmu for {} ({}) obtained, {}'.format(title, year, danmuId))
+        else:
+            print('failed to get danmu for {}({})'.format(title, year))
+            redis.rpush(const.PREFIX_NOT_FOUND_DANMU_LIST, title)
         print('current idx {}'.format(start + idx))
         time.sleep(random.randint(2, 4) * 2)
     print('ALL DONE.')
