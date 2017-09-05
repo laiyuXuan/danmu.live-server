@@ -92,7 +92,7 @@ class MyTestCase(unittest.TestCase):
         # decom = zlib.decompressobj().decompress(bytearray(r.raw.data))
 
         # print(decom)
-        iqiyi.match(Play(name='钢铁侠', type=const.MOVIE))
+        iqiyi.match(Play(name='绝命毒师', type=const.EPISODE, season=1, episode=5))
         # print(strings.remove_punctuation('哈~!@#$%^利&*()_+波|":>?<特\';/.,\"！@#¥%……*（）-=——+·～、|；／。，：？》《'))
 
 

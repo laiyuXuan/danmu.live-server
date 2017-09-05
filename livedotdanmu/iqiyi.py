@@ -46,19 +46,50 @@ def search_movie(play: Play):
         print('no playable source for {} found on iqiyi'.format(play.name))
         return None
     playUrl = matched[0].find_all(class_='info_play_btn')[0]['href']
+    return get_info_from_play_url(play.name, playUrl)
+
+
+def search_episode(play:Play):
+    if play.episode is None:
+        print('no episode provided for {}, abort...'.format(play.name))
+        return None
+    name = play.name
+    if not play.season is None:
+        name = play.name + '第' + str(play.season) + '季'
+    searchUrl = app.config['IQIYI_SEARCH_EPISODE_URL'].format(name)
+    print('search {} on iqiyi {}'.format(name, searchUrl))
+    r = requests.get(searchUrl)
+    if r.status_code != 200:
+        print('failed to search {} on iqiyi, {}'.format(name, r.status_code))
+        return None
+    soup = BeautifulSoup(r.text, 'lxml')
+    results = soup.find_all(class_='result_info result_info-auto result_info-180236')
+    if results.__len__() == 0:
+        print('no {} found on iqiyi'.format(name))
+        return None
+    matched = list(filter(lambda r: r.find_all(class_='icon_placeSource icon_iqiyi').__len__() > 0
+                                    and r.find_all(class_='album_link').__len__() > 0
+                                    and strings.remove_punctuation(
+                                    r.find_all(class_='result_title')[0].find_all('a')[0]['title']).__contains__(play.name),
+                                    results))
+    if matched.__len__() == 0:
+        print('no playable source for {} found on iqiyi'.format(name))
+        return None
+    playUrl = matched[0].find_all(class_='album_link')[play.episode - 1]['href']
+    # TODO: save other episodes' danmu to db
+    return get_info_from_play_url(name, playUrl)
+
+
+def get_info_from_play_url(name, playUrl):
     r = requests.get(playUrl)
     if r.status_code != 200:
-        print('failed to open play url {} for {}'.format(playUrl, play.name))
+        print('failed to open play url {} for {}'.format(playUrl, name))
         return None
+    r = requests.get(playUrl)
     tvId = re.compile('tvId:(.+?),').findall(r.text)[0]
     albumId = re.compile('albumId:(.+?),').findall(r.text)[0]
     categoryId = re.compile('cid:(.+?),').findall(r.text)[0]
     return tvId, 1, albumId, categoryId
-
-
-def search_episode(play):
-    # return tvId, paragraph, albumId, categoryId
-    return None
 
 
 def get_danmu(tvId, paragraph, albumId, categoryId):
