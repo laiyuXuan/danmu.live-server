@@ -10,16 +10,27 @@ from livedotdanmu.model.play import Play
 from livedotdanmu.utils import strings, files
 
 
-def match(play:Play):
+def match(play:Play, hash:str):
     danmu = search_danmu(play)
     if danmu is None:
         return None
     danmuId = uuid.uuid4().hex
     print('danmuId {} for {}({})'.format(danmuId, play.name, play.year))
     files.write_json_file(app.config['DANMU_FILE_PATH'] + danmuId, danmu)
+    #store name:danmuId into redis
     redis.set(const.PREFIX_MOVIVE_NAME_2_DANMU.format(play.name), danmuId)
     if not play.year is None:
         redis.set(const.PREFIX_MOVIVE_NAME_YEAR_2_DANMU.format(play.name, play.year), danmuId)
+
+    #store hash:danmuId into redis
+    if not hash is None and not hash == '':
+        splits = hash.split(',')
+        if splits.__len__() == 0:
+            return danmuId
+        headTailHash = splits[0]
+        bodyHash = splits[1]
+        redis.set(const.PREFIX_FILE_HASH_HEADTAIL.format(headTailHash), danmuId)
+        redis.set(const.PREFIX_FILE_HASH_BODY.format(bodyHash), danmuId)
     return danmuId
 
 
@@ -111,6 +122,8 @@ def extract_episode(filename):
 
 
 def match_by_hash(hashValue:str):
+    if hashValue is None or hashValue == '':
+        return None
     splits = hashValue.split(',')
     if splits.__len__() == 0:
         return None
@@ -118,8 +131,10 @@ def match_by_hash(hashValue:str):
     bodyHash = splits[1]
     danmuId = redis.get(const.PREFIX_FILE_HASH_HEADTAIL.format(headTailHash))
     if not danmuId is None:
+        print('found danmuid :{} by head tail hash value :{}'.format(danmuId, headTailHash))
         return danmuId
     danmuId = redis.get(const.PREFIX_FILE_HASH_BODY.format(bodyHash))
     if not danmuId is None:
+        print('found danmuid :{} by body hash value :{}'.format(danmuId, bodyHash))
         return danmuId
     return None

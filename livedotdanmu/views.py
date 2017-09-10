@@ -31,6 +31,10 @@ class Search(Resource):
 
 class DanmuMatch(Resource):
     def get(self, name):
+        args = reqparse.RequestParser().add_argument('hash').parse_args()
+        danmuId = matcher.match_by_hash(args['hash'])
+        if not danmuId is None:
+            return {'danmuId': danmuId}
         play = matcher.parse_play_by_name(name)
         if play is None:
             return {'no': 'match'}, 400
@@ -40,14 +44,14 @@ class DanmuMatch(Resource):
         if not danmuId is None:
             print('danmu for %s is found in local' % (play.name))
             return {'danmuId': danmuId}
-        danmuId = matcher.match(play)
+        danmuId = matcher.match(play, args['hash'])
         if danmuId is None or danmuId == '':
             return {'no': 'match'}, 400
         return {'danmuId': danmuId}
 
 
 class DanmuMatchByHash(Resource):
-    def get(self, hashValue):
+    def get(self, testStr, hashValue):
         return matcher.match_by_hash(hashValue)
 
 class DanmuByID(Resource):
@@ -75,10 +79,10 @@ class CrawlDouban(Resource):
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(DanmuMatch, '/danmu/match/<name>')
-api.add_resource(DanmuMatchByHash, '/danmu/match/hash/<hashValue>')
 api.add_resource(DanmuByID, '/danmu/id/<id>')
 api.add_resource(BasicDanmu, '/danmu/basic/<filename>')
 api.add_resource(CrawlDouban, '/danmu/crawl/<type>')
+
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
