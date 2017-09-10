@@ -108,3 +108,18 @@ def extract_episode(filename):
         return int(result[0])
 
     print('failed to extract episode from {}'.format(filename))
+
+
+def match_by_hash(hashValue:str):
+    splits = hashValue.split(',')
+    if splits.__len__() == 0:
+        return None
+    headTailHash = splits[0]
+    bodyHash = splits[1]
+    danmuId = redis.get(const.PREFIX_FILE_HASH_HEADTAIL.format(headTailHash))
+    if not danmuId is None:
+        return danmuId
+    danmuId = redis.get(const.PREFIX_FILE_HASH_BODY.format(bodyHash))
+    if not danmuId is None:
+        return danmuId
+    return None

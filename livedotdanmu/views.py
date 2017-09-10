@@ -46,6 +46,10 @@ class DanmuMatch(Resource):
         return {'danmuId': danmuId}
 
 
+class DanmuMatchByHash(Resource):
+    def get(self, hashValue):
+        return matcher.match_by_hash(hashValue)
+
 class DanmuByID(Resource):
     def get(self, id):
         return files.open_json_file(app.config['DANMU_FILE_PATH'] + id)
@@ -71,6 +75,7 @@ class CrawlDouban(Resource):
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(DanmuMatch, '/danmu/match/<name>')
+api.add_resource(DanmuMatchByHash, '/danmu/match/hash/<hashValue>')
 api.add_resource(DanmuByID, '/danmu/id/<id>')
 api.add_resource(BasicDanmu, '/danmu/basic/<filename>')
 api.add_resource(CrawlDouban, '/danmu/crawl/<type>')
